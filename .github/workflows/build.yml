@@ -13,45 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Build APK with P4A
+      uses: ArtemSBulgakov/buildozer-action@v1
       with:
-        python-version: '3.9'
-        
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip python3-dev wget unzip
-        pip3 install Cython==0.29.33 buildozer
-        
-    - name: Setup Android SDK correctly
-      run: |
-        # Создаем папку для Android SDK
-        mkdir -p ~/android-sdk
-        cd ~/android-sdk
-        
-        # Скачиваем Command Line Tools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip -q commandlinetools-linux-9477386_latest.zip
-        
-        # Правильно организуем структуру папок
-        mkdir -p cmdline-tools/latest
-        mv cmdline-tools/bin cmdline-tools/latest/
-        mv cmdline-tools/lib cmdline-tools/latest/
-        
-        # Устанавливаем переменные окружения
-        echo "ANDROID_SDK_ROOT=~/android-sdk" >> $GITHUB_ENV
-        echo "PATH=~/android-sdk/cmdline-tools/latest/bin:~/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
-        
-        # Принимаем лицензии
-        yes | ~/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        
-        # Устанавливаем необходимые компоненты
-        ~/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-        
-    - name: Build APK
-      run: |
-        buildozer -v android debug
+        buildozer-version: stable
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
