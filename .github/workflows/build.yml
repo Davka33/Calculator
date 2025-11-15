@@ -26,9 +26,7 @@ jobs:
         
     - name: Build APK with expect
       run: |
-        # Устанавливаем expect для автоматизации ввода
         sudo apt-get install -y expect
-        # Создаем скрипт для автоматического принятия лицензий
         cat > build_apk.exp << 'EOF'
 #!/usr/bin/expect -f
 set timeout -1
