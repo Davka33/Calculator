@@ -32,18 +32,32 @@ jobs:
           libtool \
           openjdk-17-jdk \
           unzip \
-          zlib1g-dev
+          zlib1g-dev \
+          wget
         
     - name: Install Python dependencies
       run: |
         pip3 install --upgrade pip
         pip3 install Cython==0.29.33 buildozer
         
-    - name: Accept Android licenses
+    - name: Setup Android SDK
       run: |
         mkdir -p ~/.android
         touch ~/.android/repositories.cfg
-        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip commandlinetools-linux-8512546_latest.zip -d ~/.android/cmdline-tools
+        mv ~/.android/cmdline-tools/cmdline-tools ~/.android/cmdline-tools/latest
+        echo "export ANDROID_HOME=~/.android" >> ~/.bashrc
+        echo "export PATH=\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools" >> ~/.bashrc
+        source ~/.bashrc
+        
+    - name: Accept Android licenses
+      run: |
+        yes | ~/.android/cmdline-tools/latest/bin/sdkmanager --licenses
+        
+    - name: Install Android SDK
+      run: |
+        ~/.android/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
         
     - name: Build APK
       run: |
