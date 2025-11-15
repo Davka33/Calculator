@@ -13,10 +13,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Build APK with P4A
-      uses: ArtemSBulgakov/buildozer-action@v1
-      with:
-        buildozer_version: stable
+    - name: Build with Docker
+      run: |
+        docker run --rm -v $(pwd):/src kivy/buildozer:latest buildozer -v android debug
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
