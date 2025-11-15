@@ -18,50 +18,29 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          python3-dev \
-          git \
-          autoconf \
-          build-essential \
-          libffi-dev \
-          libssl-dev \
-          libtool \
-          openjdk-17-jdk \
-          unzip \
-          zlib1g-dev \
-          wget
-        
-    - name: Install Python dependencies
-      run: |
-        pip3 install --upgrade pip
+        sudo apt-get install -y python3-pip python3-dev
         pip3 install Cython==0.29.33 buildozer
         
-    - name: Setup Android SDK
+    - name: Build APK with expect
       run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip commandlinetools-linux-8512546_latest.zip -d ~/.android/cmdline-tools
-        mv ~/.android/cmdline-tools/cmdline-tools ~/.android/cmdline-tools/latest
-        echo "export ANDROID_HOME=~/.android" >> ~/.bashrc
-        echo "export PATH=\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools" >> ~/.bashrc
-        source ~/.bashrc
-        
-    - name: Accept Android licenses
-      run: |
-        yes | ~/.android/cmdline-tools/latest/bin/sdkmanager --licenses
-        
-    - name: Install Android SDK
-      run: |
-        ~/.android/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-        
-    - name: Build APK
-      run: |
-        buildozer -v android debug
+        # Устанавливаем expect для автоматизации ввода
+        sudo apt-get install -y expect
+        # Создаем скрипт для автоматического принятия лицензий
+        cat > build_apk.exp << 'EOF'
+#!/usr/bin/expect -f
+set timeout -1
+spawn buildozer -v android debug
+expect "Accept? (y/N):"
+send "y\r"
+expect "Accept? (y/N):"
+send "y\r"
+expect eof
+EOF
+        chmod +x build_apk.exp
+        ./build_apk.exp
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
