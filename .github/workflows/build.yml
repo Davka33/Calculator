@@ -18,21 +18,29 @@ jobs:
       with:
         python-version: '3.9'
         
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip python3-dev
+        sudo apt-get install -y \
+          python3-pip \
+          python3-dev \
+          git \
+          autoconf \
+          build-essential \
+          libffi-dev \
+          libssl-dev \
+          libtool \
+          openjdk-17-jdk \
+          unzip \
+          zlib1g-dev
         
-    - name: Install Buildozer
+    - name: Install Python dependencies
       run: |
-        pip3 install buildozer
+        pip3 install --upgrade pip
+        pip3 install Cython==0.29.33 buildozer
         
     - name: Build APK
       run: |
-        # Пропускаем init если файл уже есть
-        if [ ! -f buildozer.spec ]; then
-          buildozer init
-        fi
         buildozer -v android debug
         
     - name: Upload APK
