@@ -24,21 +24,15 @@ jobs:
         sudo apt-get install -y python3-pip python3-dev
         pip3 install Cython==0.29.33 buildozer
         
-    - name: Build APK with expect
+    - name: Pre-create license files
       run: |
-        sudo apt-get install -y expect
-        cat > build_apk.exp << 'EOF'
-#!/usr/bin/expect -f
-set timeout -1
-spawn buildozer -v android debug
-expect "Accept? (y/N):"
-send "y\r"
-expect "Accept? (y/N):"
-send "y\r"
-expect eof
-EOF
-        chmod +x build_apk.exp
-        ./build_apk.exp
+        mkdir -p ~/.android/licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.android/licenses/android-sdk-preview-license
+        
+    - name: Build APK
+      run: |
+        buildozer -v android debug
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
