@@ -39,6 +39,12 @@ jobs:
         pip3 install --upgrade pip
         pip3 install Cython==0.29.33 buildozer
         
+    - name: Accept Android licenses
+      run: |
+        mkdir -p ~/.android
+        touch ~/.android/repositories.cfg
+        yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        
     - name: Build APK
       run: |
         buildozer -v android debug
